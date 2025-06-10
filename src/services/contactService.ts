@@ -65,6 +65,19 @@ class ContactService {
     return deleted;
   }
 
+  public filterContacts(query: { name?: string; phone?: string }): Contact[] {
+    return this.contacts.filter(contact => {
+      if (!query.name && !query.phone) {
+        return true;
+      }
+      
+      const nameMatch = !query.name || contact.name.toLowerCase().includes(query.name.toLowerCase());
+      
+      const phoneMatch = !query.phone || contact.phoneNumber.includes(query.phone);
+      
+      return nameMatch && phoneMatch;
+    });
+  }
 
   public exportContacts(): boolean {
     try {

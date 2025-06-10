@@ -13,6 +13,24 @@ class ContactController {
     });
   };
 
+  public filterContacts = (req: Request, res: Response): void => {
+    const { name, phone } = req.query;
+    
+    const nameFilter = typeof name === 'string' ? name : undefined;
+    const phoneFilter = typeof phone === 'string' ? phone : undefined;
+    
+    const filteredContacts = contactService.filterContacts({ 
+      name: nameFilter,
+      phone: phoneFilter 
+    });
+    
+    res.status(200).json({
+      status: 'success',
+      results: filteredContacts.length,
+      data: { contacts: filteredContacts }
+    });
+  };
+
   public getContactByPhone = (req: Request, res: Response): void => {
     const phoneNumber = req.params.phoneNumber;
     const contact = contactService.getContactBy('phoneNumber', phoneNumber);
