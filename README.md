@@ -26,3 +26,10 @@ npm start
 ## API Endpoints
 
 - `GET /` - Health check endpoint that returns server status
+- `GET /contacts` - Get all contacts
+- `POST /contacts` - Create a new contact
+- `GET /contacts/:phoneNumber` - Get contact by phone number
+- `PUT /contacts/:phoneNumber` - Update existing contact by phone number
+- `DELETE /contacts/:phoneNumber` - Delete a contact by phone number
+- `GET /contacts/export/json` - Export contacts to JSON file
+- `GET /contacts/import/json` - Import contacts from JSON file

@@ -65,27 +65,46 @@ class ContactController {
       });
     }
   };
-
   public updateContact = (req: Request, res: Response): void => {
-    const phoneNumber = req.params.phoneNumber;
-    const updatedData: Contact = req.body;
-
-    updatedData.phoneNumber = phoneNumber;
-    
-    const updatedContact = contactService.updateContact(phoneNumber, updatedData);
-    
-    if (!updatedContact) {
-      res.status(404).json({
-        status: 'fail',
-        message: 'Contact not found'
+    try {
+      const phoneNumber = req.params.phoneNumber;
+      const updatedData: Partial<Contact> = req.body;
+      
+      const existingContact = contactService.getContactBy('phoneNumber', phoneNumber);
+      if (!existingContact) {
+        res.status(404).json({
+          status: 'fail',
+          message: 'Contact not found'
+        });
+        return;
+      }
+      
+      if (updatedData.phoneNumber && updatedData.phoneNumber !== phoneNumber) {
+        res.status(400).json({
+          status: 'fail',
+          message: 'Phone number cannot be changed'
+        });
+        return;
+      }
+      
+      const dataToUpdate: Contact = {
+        ...existingContact,
+        ...updatedData,
+        phoneNumber: phoneNumber
+      };
+      
+      const updatedContact = contactService.updateContact(phoneNumber, dataToUpdate);
+      
+      res.status(200).json({
+        status: 'success',
+        data: { contact: updatedContact }
       });
-      return;
+    } catch (error) {
+      res.status(400).json({
+        status: 'fail',
+        message: error instanceof Error ? error.message : 'Error updating contact'
+      });
     }
-    
-    res.status(200).json({
-      status: 'success',
-      data: { contact: updatedContact }
-    });
   };
 
   public deleteContact = (req: Request, res: Response): void => {

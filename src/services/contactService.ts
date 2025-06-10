@@ -32,7 +32,6 @@ class ContactService {
     this.contacts.push(contact);
     return contact;
   }
-
   /**
    * Update an existing contact
    */
@@ -40,16 +39,21 @@ class ContactService {
     const index = this.contacts.findIndex(c => c.phoneNumber === phoneNumber);
     
     if (index !== -1) {
-      this.contacts[index] = updatedContact;
-      return updatedContact;
+      this.contacts[index] = {
+        ...this.contacts[index],
+        ...updatedContact,
+        phoneNumber: phoneNumber 
+      };
+      
+      this.exportContacts();
+      
+      return this.contacts[index];
     }
     
     return null;
   }
 
-  /**
-   * Delete a contact
-   */
+
   public deleteContact(phoneNumber: string): boolean {
     const initialLength = this.contacts.length;
     this.contacts = this.contacts.filter(c => c.phoneNumber !== phoneNumber);
@@ -57,12 +61,9 @@ class ContactService {
     return this.contacts.length < initialLength;
   }
 
-  /**
-   * Export contacts to JSON file
-   */
+
   public exportContacts(): boolean {
     try {
-      // Create directory if it doesn't exist
       const dir = path.dirname(this.dataFilePath);
       if (!fs.existsSync(dir)) {
         fs.mkdirSync(dir, { recursive: true });
