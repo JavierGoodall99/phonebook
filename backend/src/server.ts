@@ -6,7 +6,7 @@ import { contactService } from './services/contactService';
 dotenv.config();
 
 const app: Application = express();
-const PORT = process.env.PORT || 3000;
+const PORT = process.env.PORT || 5000;
 
 if (process.env.NODE_ENV !== 'test') {
   contactService.importContacts();
