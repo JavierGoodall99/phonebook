@@ -62,7 +62,6 @@ const ContactForm = ({ onSuccess, onCancel }: ContactFormProps) => {
       setErrors(prev => ({ ...prev, [name]: undefined }));
     }
   };
-
   const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();
     setSubmitError(null);

@@ -1,0 +1,204 @@
+import { useEffect, useState } from 'react';
+import api from '../api/axios';
+import type { AxiosResponse } from 'axios';
+import type { Contact } from '../api/contacts';
+
+interface ContactsApiResponse {
+  status: string;
+  results: number;
+  data: {
+    contacts: Contact[];
+  };
+}
+
+const ContactList = () => {
+  const [contacts, setContacts] = useState<Contact[]>([]);
+  const [isLoading, setIsLoading] = useState<boolean>(true);
+  const [error, setError] = useState<string | null>(null);
+  const [searchTerm, setSearchTerm] = useState<string>('');
+
+  const fetchContacts = async () => {
+    try {
+      setIsLoading(true);
+      const response: AxiosResponse<ContactsApiResponse> = await api.get('/contacts');
+      setContacts(response.data.data.contacts);
+      setError(null);
+    } catch (err) {
+      setError('Failed to fetch contacts. Please try again later.');
+      console.error('Error fetching contacts:', err);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchContacts();
+  }, []);
+
+  const handleDelete = async (phoneNumber: string) => {
+    if (window.confirm('Are you sure you want to delete this contact?')) {
+      try {
+        await api.delete(`/contacts/${phoneNumber}`);
+        // Update the contacts list after successful deletion
+        setContacts(contacts.filter(contact => contact.phoneNumber !== phoneNumber));
+      } catch (err) {
+        setError('Failed to delete contact. Please try again.');
+        console.error('Error deleting contact:', err);
+      }
+    }
+  };
+
+  const handleSearch = async (e: React.FormEvent) => {
+    e.preventDefault();
+    try {
+      setIsLoading(true);
+      const url = searchTerm 
+        ? `/contacts/contacts?${isNaN(Number(searchTerm)) ? 'name' : 'phone'}=${searchTerm}`
+        : '/contacts';
+      
+      const response: AxiosResponse<ContactsApiResponse> = await api.get(url);
+      setContacts(response.data.data.contacts);
+      setError(null);
+    } catch (err) {
+      setError('Failed to search contacts. Please try again.');
+      console.error('Error searching contacts:', err);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const filteredContacts = contacts.filter(contact => {
+    const lowerSearchTerm = searchTerm.toLowerCase();
+    return (
+      contact.name.toLowerCase().includes(lowerSearchTerm) ||
+      contact.phoneNumber.includes(searchTerm) ||
+      (contact.emailAddress && contact.emailAddress.toLowerCase().includes(lowerSearchTerm))
+    );
+  });
+
+  return (
+    <div className="bg-white shadow-md rounded-lg p-6">
+      <h2 className="text-2xl font-semibold mb-4">Contact List</h2>
+      
+      {/* Search form */}
+      <form onSubmit={handleSearch} className="mb-6">
+        <div className="flex">
+          <input
+            type="text"
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+            placeholder="Search by name or phone number"
+            className="flex-1 px-4 py-2 border border-gray-300 rounded-l-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+          />
+          <button
+            type="submit"
+            className="bg-blue-600 text-white px-4 py-2 rounded-r-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500"
+          >
+            Search
+          </button>
+        </div>
+      </form>
+      
+      {/* Error message */}
+      {error && (
+        <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mb-4">
+          {error}
+        </div>
+      )}
+      
+      {/* Loading state */}
+      {isLoading ? (
+        <div className="flex justify-center items-center py-8">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-500"></div>
+        </div>
+      ) : (
+        <>
+          {/* No contacts message */}
+          {filteredContacts.length === 0 && (
+            <div className="text-center py-8 text-gray-500">
+              No contacts found. Add a new contact to get started!
+            </div>
+          )}
+          
+          {/* Contacts table */}
+          {filteredContacts.length > 0 && (
+            <div className="overflow-x-auto">
+              <table className="min-w-full divide-y divide-gray-200">
+                <thead className="bg-gray-50">
+                  <tr>
+                    <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                      Name
+                    </th>
+                    <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                      Phone Number
+                    </th>
+                    <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                      Email
+                    </th>
+                    <th scope="col" className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
+                      Actions
+                    </th>
+                  </tr>
+                </thead>
+                <tbody className="bg-white divide-y divide-gray-200">
+                  {filteredContacts.map((contact) => (
+                    <tr key={contact.phoneNumber} className="hover:bg-gray-50">
+                      <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
+                        {contact.name}
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                        {contact.phoneNumber}
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                        {contact.emailAddress || '-'}
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
+                        <button 
+                          className="text-red-600 hover:text-red-900 ml-4"
+                          onClick={() => handleDelete(contact.phoneNumber)}
+                        >
+                          Delete
+                        </button>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          )}
+          
+          {/* Mobile view for smaller screens */}
+          <div className="md:hidden mt-4">
+            {filteredContacts.map((contact) => (
+              <div key={contact.phoneNumber} className="border rounded-lg p-4 mb-4 shadow-sm">
+                <div className="font-semibold">{contact.name}</div>
+                <div className="text-gray-600 mt-1">{contact.phoneNumber}</div>
+                <div className="text-gray-600 mt-1">{contact.emailAddress || '-'}</div>
+                <div className="mt-3 flex justify-end">
+                  <button 
+                    className="text-red-600 hover:text-red-900"
+                    onClick={() => handleDelete(contact.phoneNumber)}
+                  >
+                    Delete
+                  </button>
+                </div>
+              </div>
+            ))}
+          </div>
+        </>
+      )}
+      
+      {/* Refresh button */}
+      <div className="mt-6 flex justify-end">
+        <button
+          onClick={() => fetchContacts()}
+          className="px-4 py-2 bg-gray-200 text-gray-700 rounded-md hover:bg-gray-300 focus:outline-none focus:ring-2 focus:ring-gray-500"
+        >
+          Refresh List
+        </button>
+      </div>
+    </div>
+  );
+};
+
+export default ContactList;

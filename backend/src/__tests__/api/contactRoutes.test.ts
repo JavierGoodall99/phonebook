@@ -24,7 +24,8 @@ describe('Contact API Endpoints', () => {
       expect(response.body.data.contact).toEqual(mockContact);
     });
 
-    it('should return 400 if required fields are missing', async () => {      const invalidContact = { name: 'John Doe' };
+    it('should return 400 if required fields are missing', async () => {
+      const invalidContact = { name: 'John Doe' };
 
       const response = await request(app)
         .post('/contacts')
@@ -35,7 +36,8 @@ describe('Contact API Endpoints', () => {
       expect(response.body.message).toBe('Name and phone number are required');
     });
 
-    it('should return 400 if phone number already exists', async () => {      setupContactServiceMocks.getContactBy(mockContact);
+    it('should return 400 if phone number already exists', async () => {
+      setupContactServiceMocks.getContactBy(mockContact);
 
       const response = await request(app)
         .post('/contacts')
@@ -53,13 +55,13 @@ describe('Contact API Endpoints', () => {
         name: 'John Updated',
         emailAddress: 'updated@example.com'
       };
-      
-      const updatedContact = { 
+
+      const updatedContact = {
         ...mockContact,
         name: updatedData.name,
         emailAddress: updatedData.emailAddress
       };
-      
+
       setupContactServiceMocks.getContactBy(mockContact);
       setupContactServiceMocks.updateContact(updatedContact);
 
@@ -70,10 +72,10 @@ describe('Contact API Endpoints', () => {
       expect(response.status).toBe(200);
       expect(response.body.status).toBe('success');
       expect(response.body.data.contact).toEqual(updatedContact);
-    });    it('should return 404 if contact not found', async () => {
+    }); it('should return 404 if contact not found', async () => {
       const phoneNumber = '9999999999';
       const updatedData = { name: 'Non Existent' };
-      
+
       setupContactServiceMocks.getContactBy(undefined);
 
       const response = await request(app)
@@ -83,13 +85,13 @@ describe('Contact API Endpoints', () => {
       expect(response.status).toBe(404);
       expect(response.body.status).toBe('fail');
       expect(response.body.message).toBe('Contact not found');
-    });    it('should return 400 if trying to change phone number', async () => {
+    }); it('should return 400 if trying to change phone number', async () => {
       const phoneNumber = '1234567890';
       const updatedData = {
         name: 'John Updated',
         phoneNumber: '9876543210'
       };
-      
+
       setupContactServiceMocks.getContactBy(mockContact);
 
       const response = await request(app)
@@ -104,7 +106,7 @@ describe('Contact API Endpoints', () => {
   describe('DELETE /contacts/:phoneNumber - Delete Contact', () => {
     it('should delete an existing contact', async () => {
       const phoneNumber = '1234567890';
-      
+
       setupContactServiceMocks.deleteContact(true);
 
       const response = await request(app)
@@ -112,9 +114,9 @@ describe('Contact API Endpoints', () => {
 
       expect(response.status).toBe(204);
       expect(response.body).toEqual({});
-    });    it('should return 404 if contact not found', async () => {
+    }); it('should return 404 if contact not found', async () => {
       const phoneNumber = '9999999999';
-      
+
       setupContactServiceMocks.deleteContact(false);
 
       const response = await request(app)

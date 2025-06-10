@@ -1,1 +1,12 @@
-[]
+[
+  {
+    "name": "Javier Goodall",
+    "phoneNumber": "0842909844",
+    "emailAddress": "javiergoodall23@gmail.com"
+  },
+  {
+    "name": "intel",
+    "phoneNumber": "1234567890",
+    "emailAddress": "intel@gmail.com"
+  }
+]
