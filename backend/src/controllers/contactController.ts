@@ -69,8 +69,9 @@ class ContactController {
         });
         return;
       }
+        const contact = contactService.addContact(newContact);
       
-      const contact = contactService.addContact(newContact);
+      contactService.exportContacts();
       
       res.status(201).json({
         status: 'success',

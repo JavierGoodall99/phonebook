@@ -4,8 +4,8 @@ import type { AxiosResponse } from 'axios';
 export interface Contact {
   id: string;
   name: string;
-  phone: string;
-  email?: string;
+  phoneNumber: string; 
+  emailAddress?: string;
 }
 
 export const contactsApi = {
@@ -28,7 +28,6 @@ export const contactsApi = {
       throw error;
     }
   },
-
   create: async (contact: Omit<Contact, 'id'>): Promise<Contact> => {
     try {
       const response: AxiosResponse<Contact> = await api.post('/contacts', contact);

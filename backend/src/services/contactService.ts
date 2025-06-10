@@ -24,7 +24,6 @@ class ContactService {
   public getContactBy(property: keyof Contact, value: string): Contact | undefined {
     return this.contacts.find(contact => contact[property] === value);
   }
-
   /**
    * Add a new contact
    */

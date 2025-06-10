@@ -72,11 +72,11 @@ const ContactForm = ({ onSuccess, onCancel }: ContactFormProps) => {
     }
     
     setIsSubmitting(true);
-    try {
+    try {      
       await contactsApi.create({
         name: formData.name,
-        phone: formData.phone,
-        email: formData.email || undefined 
+        phoneNumber: formData.phone,  
+        emailAddress: formData.email || undefined
       });
       
       setFormData({ name: '', phone: '', email: '' });
