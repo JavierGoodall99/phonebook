@@ -53,12 +53,16 @@ class ContactService {
     return null;
   }
 
-
   public deleteContact(phoneNumber: string): boolean {
     const initialLength = this.contacts.length;
     this.contacts = this.contacts.filter(c => c.phoneNumber !== phoneNumber);
     
-    return this.contacts.length < initialLength;
+    const deleted = this.contacts.length < initialLength;
+    if (deleted) {
+      this.exportContacts();
+    }
+    
+    return deleted;
   }
 
 
