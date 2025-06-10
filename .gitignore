@@ -1,0 +1,21 @@
+# Dependencies
+node_modules
+
+# Environment variables
+.env
+
+# Build/Output
+dist/
+build/
+out/
+
+# IDE/Editors
+.idea/
+.vscode/
+*.sublime-*
+*.swp
+*.swo
+
+# OS
+.DS_Store
+Thumbs.db
