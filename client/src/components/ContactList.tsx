@@ -2,7 +2,9 @@ import { useEffect, useState } from 'react';
 import api from '../api/axios';
 import type { AxiosResponse } from 'axios';
 import type { Contact } from '../api/contacts';
+import contactsApi from '../api/contacts';
 import ContactForm from './ContactForm';
+import SearchBar from './SearchBar';
 
 interface ContactsApiResponse {
   status: string;
@@ -12,7 +14,11 @@ interface ContactsApiResponse {
   };
 }
 
-const ContactList = () => {
+interface ContactListProps {
+  refreshTrigger?: number; 
+}
+
+const ContactList = ({ refreshTrigger = 0 }: ContactListProps) => {
   const [contacts, setContacts] = useState<Contact[]>([]);
   const [isLoading, setIsLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
@@ -33,34 +39,34 @@ const ContactList = () => {
       setIsLoading(false);
     }
   };
-
   useEffect(() => {
     fetchContacts();
-  }, []);
-
+  }, [refreshTrigger]);
   const handleDelete = async (phoneNumber: string) => {
     if (window.confirm('Are you sure you want to delete this contact?')) {
       try {
-        await api.delete(`/contacts/${phoneNumber}`);
+        await contactsApi.delete(phoneNumber);
         // Update the contacts list after successful deletion
         setContacts(contacts.filter(contact => contact.phoneNumber !== phoneNumber));
+        setError(null);
       } catch (err) {
         setError('Failed to delete contact. Please try again.');
         console.error('Error deleting contact:', err);
       }
     }
   };
-
   const handleSearch = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (!searchTerm.trim()) {
+      return fetchContacts(); 
+    }
+
     try {
       setIsLoading(true);
-      const url = searchTerm 
-        ? `/contacts/contacts?${isNaN(Number(searchTerm)) ? 'name' : 'phone'}=${searchTerm}`
-        : '/contacts';
+      const searchParam = isNaN(Number(searchTerm)) ? { name: searchTerm } : { phone: searchTerm };
       
-      const response: AxiosResponse<ContactsApiResponse> = await api.get(url);
-      setContacts(response.data.data.contacts);
+      const contacts = await contactsApi.search(searchParam);
+      setContacts(contacts);
       setError(null);
     } catch (err) {
       setError('Failed to search contacts. Please try again.');
@@ -99,40 +105,30 @@ const ContactList = () => {
     <div className="bg-white shadow-md rounded-lg p-6">
       <h2 className="text-2xl font-semibold mb-4">Contact List</h2>
       
-      {/* Search form */}
-      <form onSubmit={handleSearch} className="mb-6">
-        <div className="flex">
-          <input
-            type="text"
-            value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)}
-            placeholder="Search by name or phone number"
-            className="flex-1 px-4 py-2 border border-gray-300 rounded-l-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-          />
-          <button
-            type="submit"
-            className="bg-blue-600 text-white px-4 py-2 rounded-r-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500"
-          >
-            Search
-          </button>
-        </div>
-      </form>
+      <SearchBar 
+        onSearch={(query) => {
+          setSearchTerm(query);
+          if (query.trim()) {
+            handleSearch(new Event('submit') as unknown as React.FormEvent);
+          } else {
+            fetchContacts();
+          }
+        }}
+        initialValue={searchTerm}
+      />
       
-      {/* Error message */}
       {error && (
         <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mb-4">
           {error}
         </div>
       )}
       
-      {/* Loading state */}
       {isLoading ? (
         <div className="flex justify-center items-center py-8">
           <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-500"></div>
         </div>
       ) : (
         <>
-          {/* No contacts message */}
           {filteredContacts.length === 0 && (
             <div className="text-center py-8 text-gray-500">
               No contacts found. Add a new contact to get started!
@@ -192,7 +188,6 @@ const ContactList = () => {
             </div>
           )}
           
-          {/* Mobile view for smaller screens */}
           <div className="md:hidden mt-4">
             {filteredContacts.map((contact) => (
               <div key={contact.phoneNumber} className="border rounded-lg p-4 mb-4 shadow-sm">
@@ -219,7 +214,6 @@ const ContactList = () => {
         </>
       )}
       
-      {/* Refresh button */}
       <div className="mt-6 flex justify-end">
         <button
           onClick={() => fetchContacts()}
@@ -227,7 +221,7 @@ const ContactList = () => {
         >
           Refresh List
         </button>
-      </div>      {/* Edit Contact Modal */}
+      </div>     
       {isEditModalOpen && editingContact && (
         <div className="fixed inset-0 flex items-center justify-center z-50">
           <div className="absolute inset-0 bg-black opacity-50"></div>
