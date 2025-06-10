@@ -8,7 +8,9 @@ dotenv.config();
 const app: Application = express();
 const PORT = process.env.PORT || 3000;
 
-contactService.importContacts();
+if (process.env.NODE_ENV !== 'test') {
+  contactService.importContacts();
+}
 
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));

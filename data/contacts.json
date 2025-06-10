@@ -1,12 +1,1 @@
-[
-  {
-    "name": "Updated Name",
-    "phoneNumber": "555-123-4567",
-    "emailAddress": "updated@example.com"
-  },
-  {
-    "name": "Jane Smith",
-    "phoneNumber": "555-987-6543",
-    "emailAddress": "jane.smith@example.com"
-  }
-]
+[]
