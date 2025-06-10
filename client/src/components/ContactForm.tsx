@@ -1,6 +1,7 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import type { FormEvent, ChangeEvent } from 'react';
 import contactsApi from '../api/contacts';
+import type { Contact } from '../api/contacts';
 
 interface FormData {
   name: string;
@@ -17,14 +18,34 @@ interface ValidationErrors {
 interface ContactFormProps {
   onSuccess?: () => void;
   onCancel?: () => void;
+  initialValues?: Contact;
+  onSubmit?: () => void;
+  mode?: 'create' | 'edit';
 }
 
-const ContactForm = ({ onSuccess, onCancel }: ContactFormProps) => {
+const ContactForm = ({ 
+  onSuccess, 
+  onCancel, 
+  initialValues, 
+  onSubmit, 
+  mode = initialValues ? 'edit' : 'create' 
+}: ContactFormProps) => {
   const [formData, setFormData] = useState<FormData>({
     name: '',
     phone: '',
     email: ''
   });
+  
+  // Initialize form with contact data if editing
+  useEffect(() => {
+    if (initialValues) {
+      setFormData({
+        name: initialValues.name,
+        phone: initialValues.phoneNumber,
+        email: initialValues.emailAddress || ''
+      });
+    }
+  }, [initialValues]);
   
   const [errors, setErrors] = useState<ValidationErrors>({});
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -61,8 +82,7 @@ const ContactForm = ({ onSuccess, onCancel }: ContactFormProps) => {
     if (errors[name as keyof ValidationErrors]) {
       setErrors(prev => ({ ...prev, [name]: undefined }));
     }
-  };
-  const handleSubmit = async (e: FormEvent) => {
+  };  const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();
     setSubmitError(null);
     
@@ -71,28 +91,39 @@ const ContactForm = ({ onSuccess, onCancel }: ContactFormProps) => {
     }
     
     setIsSubmitting(true);
-    try {      
-      await contactsApi.create({
-        name: formData.name,
-        phoneNumber: formData.phone,  
-        emailAddress: formData.email || undefined
-      });
+    try {      if (mode === 'edit' && initialValues) {
+        const updateData = {
+          name: formData.name,
+          emailAddress: formData.email || undefined
+        };
+        await contactsApi.update(initialValues.phoneNumber, updateData);
+      } else {
+        const contactData = {
+          name: formData.name,
+          phoneNumber: formData.phone,
+          emailAddress: formData.email || undefined
+        };
+        await contactsApi.create(contactData);
+      }
       
       setFormData({ name: '', phone: '', email: '' });
-      if (onSuccess) {
-        onSuccess();
+      if (onSubmit) {
+        onSubmit();
+      } else if (onSuccess) {
+                onSuccess();
       }
     } catch (error) {
-      console.error('Failed to create contact:', error);
-      setSubmitError('Failed to create contact. Please try again.');
+      console.error(`Failed to ${mode} contact:`, error);
+      setSubmitError(`Failed to ${mode} contact. Please try again.`);
     } finally {
       setIsSubmitting(false);
     }
   };
-
   return (
     <div className="bg-white rounded-lg shadow-md p-6 max-w-md mx-auto">
-      <h2 className="text-2xl font-semibold mb-6">Add New Contact</h2>
+      <h2 className="text-2xl font-semibold mb-6">
+        {mode === 'edit' ? 'Edit Contact' : 'Add New Contact'}
+      </h2>
       
       {submitError && (
         <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mb-4">
@@ -165,13 +196,12 @@ const ContactForm = ({ onSuccess, onCancel }: ContactFormProps) => {
             >
               Cancel
             </button>
-          )}
-          <button
+          )}          <button
             type="submit"
             className="px-4 py-2 bg-blue-600 text-white rounded-md shadow-sm hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 disabled:opacity-50"
             disabled={isSubmitting}
           >
-            {isSubmitting ? 'Saving...' : 'Save Contact'}
+            {isSubmitting ? 'Saving...' : mode === 'edit' ? 'Update Contact' : 'Save Contact'}
           </button>
         </div>
       </form>

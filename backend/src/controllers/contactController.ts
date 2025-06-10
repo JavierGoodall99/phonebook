@@ -83,11 +83,12 @@ class ContactController {
         message: error instanceof Error ? error.message : 'Invalid contact data'
       });
     }
-  };
-  public updateContact = (req: Request, res: Response): void => {
+  };  public updateContact = (req: Request, res: Response): void => {
     try {
       const phoneNumber = req.params.phoneNumber;
       const updatedData: Partial<Contact> = req.body;
+      
+      console.log('Updating contact:', phoneNumber, 'with data:', updatedData);
       
       const existingContact = contactService.getContactBy('phoneNumber', phoneNumber);
       if (!existingContact) {

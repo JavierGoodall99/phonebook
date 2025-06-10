@@ -40,14 +40,17 @@ export const contactsApi = {
       console.error('Failed to create contact:', error);
       throw error;
     }
-  },
-
-  update: async (phoneNumber: string, contact: Partial<Contact>): Promise<Contact> => {
+  },  update: async (phoneNumber: string, contact: Partial<Contact>): Promise<Contact> => {
     try {
+      console.log(`Updating contact ${phoneNumber} with data:`, contact);
       const response: AxiosResponse<ApiResponse<{ contact: Contact }>> = await api.put(`/contacts/${phoneNumber}`, contact);
+      console.log('Update successful:', response.data);
       return response.data.data.contact;
     } catch (error) {
       console.error(`Failed to update contact with phone number ${phoneNumber}:`, error);
+      if (error && typeof error === 'object' && 'response' in error) {
+        console.error('Error response data:', (error as { response: { data: unknown } }).response.data);
+      }
       throw error;
     }
   },

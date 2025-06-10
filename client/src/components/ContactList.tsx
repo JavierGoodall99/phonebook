@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import api from '../api/axios';
 import type { AxiosResponse } from 'axios';
 import type { Contact } from '../api/contacts';
+import ContactForm from './ContactForm';
 
 interface ContactsApiResponse {
   status: string;
@@ -16,6 +17,8 @@ const ContactList = () => {
   const [isLoading, setIsLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
   const [searchTerm, setSearchTerm] = useState<string>('');
+  const [editingContact, setEditingContact] = useState<Contact | null>(null);
+  const [isEditModalOpen, setIsEditModalOpen] = useState<boolean>(false);
 
   const fetchContacts = async () => {
     try {
@@ -65,6 +68,22 @@ const ContactList = () => {
     } finally {
       setIsLoading(false);
     }
+  };
+
+  const handleEdit = (contact: Contact) => {
+    setEditingContact(contact);
+    setIsEditModalOpen(true);
+  };
+
+  const handleEditSuccess = () => {
+    setIsEditModalOpen(false);
+    setEditingContact(null);
+    fetchContacts(); // Refresh the contacts list
+  };
+
+  const handleEditCancel = () => {
+    setIsEditModalOpen(false);
+    setEditingContact(null);
   };
 
   const filteredContacts = contacts.filter(contact => {
@@ -154,6 +173,12 @@ const ContactList = () => {
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
                         <button 
+                          className="text-blue-600 hover:text-blue-900 ml-4"
+                          onClick={() => handleEdit(contact)}
+                        >
+                          Edit
+                        </button>
+                        <button 
                           className="text-red-600 hover:text-red-900 ml-4"
                           onClick={() => handleDelete(contact.phoneNumber)}
                         >
@@ -176,6 +201,12 @@ const ContactList = () => {
                 <div className="text-gray-600 mt-1">{contact.emailAddress || '-'}</div>
                 <div className="mt-3 flex justify-end">
                   <button 
+                    className="text-blue-600 hover:text-blue-900 mr-4"
+                    onClick={() => handleEdit(contact)}
+                  >
+                    Edit
+                  </button>
+                  <button 
                     className="text-red-600 hover:text-red-900"
                     onClick={() => handleDelete(contact.phoneNumber)}
                   >
@@ -196,7 +227,25 @@ const ContactList = () => {
         >
           Refresh List
         </button>
-      </div>
+      </div>      {/* Edit Contact Modal */}
+      {isEditModalOpen && editingContact && (
+        <div className="fixed inset-0 flex items-center justify-center z-50">
+          <div className="absolute inset-0 bg-black opacity-50"></div>
+          <div className="bg-white rounded-lg overflow-hidden shadow-md max-w-sm w-full z-10">
+            <div className="bg-gray-100 px-4 py-2 border-b">
+              <h3 className="text-lg font-semibold">Edit Contact</h3>
+            </div>
+            <div className="p-4">
+              <ContactForm
+                initialValues={editingContact}
+                onSuccess={handleEditSuccess}
+                onCancel={handleEditCancel}
+                mode="edit"
+              />
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };
