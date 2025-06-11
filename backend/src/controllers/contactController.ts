@@ -95,7 +95,7 @@ class ContactController {
         });
         return;
       }
-      
+
       if (updatedData.phoneNumber && updatedData.phoneNumber !== phoneNumber) {
         const existingContactWithNewNumber = contactService.getContactBy('phoneNumber', updatedData.phoneNumber);
         if (existingContactWithNewNumber) {
@@ -109,8 +109,7 @@ class ContactController {
       
       const dataToUpdate: Contact = {
         ...existingContact,
-        ...updatedData,
-        phoneNumber: updatedData.phoneNumber || phoneNumber
+        ...updatedData
       };
       
       const updatedContact = contactService.updateContact(phoneNumber, dataToUpdate);
@@ -133,10 +132,9 @@ class ContactController {
         message: error instanceof Error ? error.message : 'Error updating contact'
       });
     }
-  };
-
-  public deleteContact = (req: Request, res: Response): void => {
+  };  public deleteContact = (req: Request, res: Response): void => {
     const phoneNumber = req.params.phoneNumber;
+    
     const deleted = contactService.deleteContact(phoneNumber);
     
     if (!deleted) {

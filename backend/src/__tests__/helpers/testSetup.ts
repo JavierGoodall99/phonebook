@@ -1,6 +1,5 @@
 import { contactService } from '../../services/contactService';
 
-// Mock the contactService methods
 jest.mock('../../services/contactService', () => {
   const originalModule = jest.requireActual('../../services/contactService');
   
@@ -19,12 +18,10 @@ jest.mock('../../services/contactService', () => {
   };
 });
 
-// Reset mocks before each test
 beforeEach(() => {
   jest.resetAllMocks();
 });
 
-// Helper to setup mock responses
 export const setupContactServiceMocks = {
   getAllContacts: (contacts: any[]) => {
     (contactService.getAllContacts as jest.Mock).mockReturnValue(contacts);
@@ -51,3 +48,13 @@ export const setupContactServiceMocks = {
     (contactService.importContacts as jest.Mock).mockReturnValue(success);
   }
 };
+
+describe('Test Setup', () => {
+  it('should correctly mock contactService', () => {
+    expect(jest.isMockFunction(contactService.getAllContacts)).toBe(true);
+    expect(jest.isMockFunction(contactService.getContactBy)).toBe(true);
+    expect(jest.isMockFunction(contactService.addContact)).toBe(true);
+    expect(jest.isMockFunction(contactService.updateContact)).toBe(true);
+    expect(jest.isMockFunction(contactService.deleteContact)).toBe(true);
+  });
+});
