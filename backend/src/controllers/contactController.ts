@@ -87,9 +87,6 @@ class ContactController {
     try {
       const phoneNumber = req.params.phoneNumber;
       const updatedData: Partial<Contact> = req.body;
-      
-      console.log('Updating contact:', phoneNumber, 'with data:', updatedData);
-      
       const existingContact = contactService.getContactBy('phoneNumber', phoneNumber);
       if (!existingContact) {
         res.status(404).json({
@@ -100,20 +97,31 @@ class ContactController {
       }
       
       if (updatedData.phoneNumber && updatedData.phoneNumber !== phoneNumber) {
-        res.status(400).json({
-          status: 'fail',
-          message: 'Phone number cannot be changed'
-        });
-        return;
+        const existingContactWithNewNumber = contactService.getContactBy('phoneNumber', updatedData.phoneNumber);
+        if (existingContactWithNewNumber) {
+          res.status(400).json({
+            status: 'fail',
+            message: 'A contact with this phone number already exists'
+          });
+          return;
+        }
       }
       
       const dataToUpdate: Contact = {
         ...existingContact,
         ...updatedData,
-        phoneNumber: phoneNumber
+        phoneNumber: updatedData.phoneNumber || phoneNumber
       };
       
       const updatedContact = contactService.updateContact(phoneNumber, dataToUpdate);
+      
+      if (!updatedContact) {
+        res.status(400).json({
+          status: 'fail',
+          message: 'Failed to update contact'
+        });
+        return;
+      }
       
       res.status(200).json({
         status: 'success',

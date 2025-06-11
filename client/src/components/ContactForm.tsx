@@ -94,6 +94,7 @@ const ContactForm = ({
     try {      if (mode === 'edit' && initialValues) {
         const updateData = {
           name: formData.name,
+          phoneNumber: formData.phone,
           emailAddress: formData.email || undefined
         };
         await contactsApi.update(initialValues.phoneNumber, updateData);
@@ -148,8 +149,7 @@ const ContactForm = ({
             placeholder="John Doe"
           />
           {errors.name && <p className="mt-1 text-sm text-red-600">{errors.name}</p>}
-        </div>
-        
+        </div>        
         <div className="mb-4">
           <label htmlFor="phone" className="block text-sm font-medium text-gray-700 mb-1">
             Phone Number *

@@ -11,37 +11,31 @@ class ContactService {
     this.dataFilePath = path.join(__dirname, '../../data/contacts.json');
   }
 
-  /**
-   * Get all contacts
-   */
   public getAllContacts(): Contact[] {
     return this.contacts;
   }
 
-  /**
-   * Get contact by specific property value
-   */
   public getContactBy(property: keyof Contact, value: string): Contact | undefined {
     return this.contacts.find(contact => contact[property] === value);
   }
-  /**
-   * Add a new contact
-   */
   public addContact(contact: Contact): Contact {
     this.contacts.push(contact);
     return contact;
-  }
-  /**
-   * Update an existing contact
-   */
+  } 
   public updateContact(phoneNumber: string, updatedContact: Contact): Contact | null {
     const index = this.contacts.findIndex(c => c.phoneNumber === phoneNumber);
     
     if (index !== -1) {
+      if (updatedContact.phoneNumber && updatedContact.phoneNumber !== phoneNumber) {
+        const existingContactWithNewNumber = this.contacts.find(c => c.phoneNumber === updatedContact.phoneNumber);
+        if (existingContactWithNewNumber) {
+          return null;
+        }
+      }
+      
       this.contacts[index] = {
         ...this.contacts[index],
-        ...updatedContact,
-        phoneNumber: phoneNumber 
+        ...updatedContact
       };
       
       this.exportContacts();
