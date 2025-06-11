@@ -42,6 +42,7 @@ const ContactList = ({ refreshTrigger = 0 }: ContactListProps) => {
   useEffect(() => {
     fetchContacts();
   }, [refreshTrigger]);
+  
   const handleDelete = async (phoneNumber: string) => {
     if (window.confirm('Are you sure you want to delete this contact?')) {
       try {
@@ -169,13 +170,13 @@ const ContactList = ({ refreshTrigger = 0 }: ContactListProps) => {
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
                         <button 
-                          className="text-blue-600 hover:text-blue-900 ml-4"
+                          className="text-white ml-4"
                           onClick={() => handleEdit(contact)}
                         >
                           Edit
                         </button>
                         <button 
-                          className="text-red-600 hover:text-red-900 ml-4"
+                          className="text-white ml-4"
                           onClick={() => handleDelete(contact.phoneNumber)}
                         >
                           Delete
@@ -213,22 +214,11 @@ const ContactList = ({ refreshTrigger = 0 }: ContactListProps) => {
           </div>
         </>
       )}
-      
-      <div className="mt-6 flex justify-end">
-        <button
-          onClick={() => fetchContacts()}
-          className="px-4 py-2 bg-gray-200 text-gray-700 rounded-md hover:bg-gray-300 focus:outline-none focus:ring-2 focus:ring-gray-500"
-        >
-          Refresh List
-        </button>
-      </div>     
+          
       {isEditModalOpen && editingContact && (
         <div className="fixed inset-0 flex items-center justify-center z-50">
           <div className="absolute inset-0 bg-black opacity-50"></div>
           <div className="bg-white rounded-lg overflow-hidden shadow-md max-w-sm w-full z-10">
-            <div className="bg-gray-100 px-4 py-2 border-b">
-              <h3 className="text-lg font-semibold">Edit Contact</h3>
-            </div>
             <div className="p-4">
               <ContactForm
                 initialValues={editingContact}

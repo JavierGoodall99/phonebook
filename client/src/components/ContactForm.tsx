@@ -191,7 +191,7 @@ const ContactForm = ({
             <button
               type="button"
               onClick={onCancel}
-              className="px-4 py-2 border border-gray-300 text-gray-700 rounded-md shadow-sm hover:bg-gray-50"
+              className="px-4 py-2 border border-gray-300 text-white rounded-md shadow-sm hover:bg-gray-50"
               disabled={isSubmitting}
             >
               Cancel
