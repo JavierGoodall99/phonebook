@@ -63,14 +63,13 @@ export const contactsApi = {
       throw error;
     }
   },
-  
-  search: async (params: { name?: string; phone?: string }): Promise<Contact[]> => {
+    search: async (params: { name?: string; phone?: string }): Promise<Contact[]> => {
     try {
       const queryParams = new URLSearchParams();
       if (params.name) queryParams.append('name', params.name);
       if (params.phone) queryParams.append('phone', params.phone);
       
-      const url = `/contacts/contacts?${queryParams.toString()}`;
+      const url = `/contacts?${queryParams.toString()}`;
       const response: AxiosResponse<ApiResponse<{ contacts: Contact[] }>> = await api.get(url);
       return response.data.data.contacts;
     } catch (error) {
