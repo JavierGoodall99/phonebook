@@ -22,7 +22,11 @@ app.use((req: Request, res: Response, next: NextFunction) => {
   next();
 });
 
-app.use('/', routes);
+app.get('/api/test', (req: Request, res: Response) => {
+  res.status(200).json({ message: 'Test endpoint is working' });
+});
+
+app.use('/api', routes);
 
 app.use((err: Error, req: Request, res: Response, next: NextFunction) => {
   console.error(err.stack);

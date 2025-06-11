@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import type { FormEvent, ChangeEvent } from 'react';
-import contactsApi from '../api/contacts';
+import { contactsApi } from '../api/contacts';
 import type { Contact } from '../api/contacts';
 
 interface FormData {

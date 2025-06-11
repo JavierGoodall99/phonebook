@@ -1,7 +1,7 @@
 [
   {
-    "name": "John Updated",
-    "phoneNumber": "9876543210",
-    "emailAddress": "updated@example.com"
+    "name": "JohnUpdated",
+    "phoneNumber": "1234567890",
+    "emailAddress": "jtest@example.com"
   }
 ]
